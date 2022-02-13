@@ -1,87 +1,76 @@
-def hello (dictt, *args, **kwargs):
-    result = "How can I help you?"
-    return result
+contacts = { "Joe": "123456", "Iren": "654321"}
 
-def all_number(dictt, *args, **kwargs):
-    resalt = dictt
-    return resalt
+def check_input(func):
+    def wrapper(string: str) -> str:
+        try:
+            return func(string)
+        except ValueError as e:
+            print("Give me name and phone please")
+        except IndexError as e:
+            print("Give me all information")
+        except KeyError   as e:
+            print("Enter user name")
+    return wrapper
 
-
-def adds(dictt, name, phone):
-    if name not in dictt.keys():
-        dictt[name] = phone
-        resalt = f"New contact: {name} - {phone}"
-    return resalt
-
-
-def phone(dictt, name, *args, **kwargs):
-    resalt = dictt[name]
-    return resalt
-
-
-def change(dictt, name, phone, *args, **kwargshell):
-    dictt[name] = phone
-    resalt = f"New phone for {name} is: {phone}"
-    return resalt
-
-def finish (dictt, *args, **kwargshell):
-    resalt = "Good bye!"
-    return resalt
-
-dictt = {
-    "ivan": "0-000-00-00",
-    "john": "0-123-45-67"
-}
-def input_error (*args, **kwargshell):
-    pass
-
-def parsing (user_input):
-    xy = user_input.split(" ")
-    try:
-        if xy[1] != "all" and xy[1] != "bye":
-            global name
-            name = xy[1]
-            try:
-                if xy[2] != "":
-                    global num
-                    num = xy [2]
-            except:
-                num = ""
-    except:
-        pass
-    return name, num
-
-name, num = "", ""
+@check_input
+def add_command(command:str) -> str:
+    name, phone = command.replace('add','').strip().split(' ')
+    contacts[name] = phone
+    return 'Contact add successfully'
 
 
-def handler(operation):
-    parsing (operation)
-    command = {
-        "hello": hello,                            
-        f"phone {name}": phone,                         
-        f"add {name} {num}": adds,                            
-        "show all": all_number,                   
-        f"change {name} {num}": change,                        
-        "good bye": finish,                       
-        "close": finish,                          
-        "exit": finish
-    }
-    resalt = command.get(operation)
-    return resalt
+def hello_command ():
+    return "How can I help you?"
+
+def all_number():
+    x = ""
+    for k, val in contacts.items(): 
+        x = x + ("".join(("Phone ", k.capitalize(), " is: ", val))) + "\n"
+    return x
+
+@check_input
+def phone(command:str) -> str:
+    name = "".join(command.replace('phone','').strip().split(' ')).capitalize()
+    result = contacts[name]
+    return f"{name.capitalize()} phone is: {result}"
+
+@check_input
+def change(command:str) -> str:
+    name, phone = command.replace('change','').strip().split(' ')
+    contacts[name] = phone
+    return f"New phone for {name.capitalize()} is: {phone}"
+
+@check_input
+def parse(command:str) -> str:
+    if command.startswith('add'):
+        return add_command(command)
+    elif command.startswith('exit'):
+        return 'exit'
+    elif command.startswith('good bye'):
+        return 'exit'
+    elif command.startswith('close'):
+        return 'exit'
+    elif command.startswith('show all'):
+        return all_number()         
+    elif command.startswith('hello'):
+        return hello_command()
+    elif command.startswith('phone'):
+        return phone (command)
+    elif command.startswith('change'):
+        return change (command)
+    else:
+        return "Unknown command"
 
 def main():
-    print("User help bot v 0.0.1")
-    while 2 > 1:
-        try:
-            h = input("Enter your command: ")
-            hh = handler(h.lower())
-            h_two = hh(dictt, name, num)
-            print(h_two)
-            if h == "good bye" or h == "close" or h == "exit":
-                break
-        except TypeError:
-            print ("Unknown command")
-
+    print("User help bot v 1.0.0")
+    while True:
+        command = input("Please, type command >>> ").lower()
+        result = parse(command)
+        if result == 'exit':
+            print("Good bye")
+            break
+        if result:
+            print(result)
 
 if __name__ == '__main__':
     main()
